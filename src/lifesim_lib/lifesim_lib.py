@@ -19,7 +19,7 @@ def get_saves(saves=None):
         saves = get_save_files()
     players = []
     for filename in saves:
-        p = SAVE_PATH + "/" + filename
+        p = f"{SAVE_PATH}/{filename}"
         players.append(pickle.load(open(p, "rb")))
     return players
 
@@ -58,13 +58,8 @@ def round_stochastic(value):
     low = math.floor(value)
     high = math.ceil(value)
     if value < 0:
-        if random.random() < high - value:
-            return low
-        return high
-    else:
-        if random.random() < value - low:
-            return high
-        return low
+        return low if random.random() < high - value else high
+    return high if random.random() < value - low else low
 
 
 COLORS = {
@@ -84,7 +79,7 @@ def get_colored(message, color):
         return str(message)
     if color not in COLORS:
         raise ValueError(f"{color!r} is not a valid ANSI color")
-    return f"\u001b[{COLORS[color]}m" + str(message) + "\033[0m"
+    return f"\u001b[{COLORS[color]}m{str(message)}" + "\033[0m"
 
 
 def print_colored(message, color):
@@ -112,16 +107,12 @@ class Trait(Enum):
         return other.name in self.conflicts
 
     def roll_selection(self):
-        if self.val == 0:
-            return True
-        return random.randint(1, abs(self.val)) == 1
+        return True if self.val == 0 else random.randint(1, abs(self.val)) == 1
 
     def get_color(self):
         if self.val > 0:
             return "green"
-        if self.val < 0:
-            return "red"
-        return None
+        return "red" if self.val < 0 else None
 
     # Name, description, value (1 if positive, -1 if negative, 0 if mixed), conflicts
     CHEERFUL = (
@@ -205,9 +196,7 @@ def choice_input(*options, return_text=False):
     for i in range(len(options)):
         print(f"{i+1}. {options[i]}")
     val = int_input_range(1, len(options))
-    if return_text:
-        return options[val - 1]
-    return val
+    return options[val - 1] if return_text else val
 
 
 def yes_no(message):
@@ -233,11 +222,11 @@ def display_event(message):
 
 
 def display_bar(stat_name, val):
-    print(stat_name + ": " + draw_bar(val, 100, 25))
+    print(f"{stat_name}: {draw_bar(val, 100, 25)}")
 
 
 def display_data(name, value):
-    print(name + ": " + str(value))
+    print(f"{name}: {str(value)}")
 
 
 def print_align_bars(*name_pairs, show_percent=False):
@@ -248,15 +237,13 @@ def print_align_bars(*name_pairs, show_percent=False):
             l = len(name)
     for pair in name_pairs:
         name, val = pair[:2]
-        if len(pair) >= 3:
-            extra = " " + pair[2]
-        else:
-            extra = ""
+        extra = f" {pair[2]}" if len(pair) >= 3 else ""
         print(
-            (name + ": ").ljust(l + 2)
-            + draw_bar(val, 100, 25)
-            + (f" {val}%" if show_percent else "")
-            + extra
+            (
+                (f"{name}: ".ljust(l + 2) + draw_bar(val, 100, 25))
+                + (f" {val}%" if show_percent else "")
+                + extra
+            )
         )
 
 
