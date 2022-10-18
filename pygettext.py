@@ -489,7 +489,7 @@ class TokenEater:
     def write(self, fp):
         options = self.__options
         timestamp = time.strftime("%Y-%m-%d %H:%M%z")
-        encoding = fp.encoding if fp.encoding else "UTF-8"
+        encoding = fp.encoding or "UTF-8"
         print(
             pot_header
             % {
@@ -521,7 +521,6 @@ class TokenEater:
                 v = sorted(v.keys())
                 if not options.writelocations:
                     pass
-                # location comments are different b/w Solaris and GNU:
                 elif options.locationstyle == options.SOLARIS:
                     for filename, lineno in v:
                         d = {"filename": filename, "lineno": lineno}
@@ -537,7 +536,7 @@ class TokenEater:
                             locline = locline + s
                         else:
                             print(locline, file=fp)
-                            locline = "#:" + s
+                            locline = f"#:{s}"
                     if len(locline) > 2:
                         print(locline, file=fp)
                 if isdocstring:
@@ -575,7 +574,6 @@ def main():
     except getopt.error as msg:
         usage(1, msg)
 
-    # for holding option values
     class Options:
         # constants
         GNU = 1
@@ -607,7 +605,7 @@ def main():
         elif opt in ("-a", "--extract-all"):
             options.extractall = 1
         elif opt in ("-d", "--default-domain"):
-            options.outfile = arg + ".pot"
+            options.outfile = f"{arg}.pot"
         elif opt in ("-E", "--escape"):
             options.escape = 1
         elif opt in ("-D", "--docstrings"):
@@ -644,10 +642,10 @@ def main():
             fp = open(arg)
             try:
                 while 1:
-                    line = fp.readline()
-                    if not line:
+                    if line := fp.readline():
+                        options.nodocstrings[line[:-1]] = 1
+                    else:
                         break
-                    options.nodocstrings[line[:-1]] = 1
             finally:
                 fp.close()
 

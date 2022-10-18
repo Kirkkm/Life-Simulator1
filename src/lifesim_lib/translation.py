@@ -11,7 +11,7 @@ langs = {"en": None}
 
 for lang in LANGUAGES:
     try:
-        l = gettext.translation("lifesim", localedir=dir + "/locale", languages=[lang])
+        l = gettext.translation("lifesim", localedir=f"{dir}/locale", languages=[lang])
     except:
         pass
     else:

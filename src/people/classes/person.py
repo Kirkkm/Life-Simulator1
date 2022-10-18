@@ -18,7 +18,7 @@ class Person:
         self.smarts = smarts
         self.looks = looks
         self.alive = True
-        self.name = self.firstname + " " + self.lastname
+        self.name = f"{self.firstname} {self.lastname}"
 
     def age_up(self):
         self.age += 1

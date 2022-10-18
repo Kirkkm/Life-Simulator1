@@ -77,7 +77,7 @@ class Player(Person):
         self.illnesses = []
 
         self.ID = str(uuid.uuid4())
-        self.save_path = SAVE_PATH + "/" + self.ID + ".pickle"
+        self.save_path = f"{SAVE_PATH}/{self.ID}.pickle"
 
     def is_depressed(self):
         return (
@@ -90,16 +90,16 @@ class Player(Person):
         num_traits = 1
         while randint(1, 100) <= 60 and num_traits < randint(1, total_traits):
             num_traits += 1
-        all_traits = [t for t in Trait]
+        all_traits = list(Trait)
         t = set()
 
-        for i in range(num_traits):
+        for _ in range(num_traits):
             attempts = 50
             while attempts > 0:
                 selected = random.choice(all_traits)
                 if not selected.roll_selection():
                     continue
-                if len(t) < 1 or not any(selected.conflicts_with(trait) for trait in t):
+                if not t or not any(selected.conflicts_with(trait) for trait in t):
                     break
                 else:
                     attempts -= 1
@@ -342,15 +342,9 @@ class Player(Person):
 
     def display_stats(self):
         if self.happiness >= 60:
-            if self.happiness >= 85:
-                symbol = ":D"
-            else:
-                symbol = ":)"
+            symbol = ":D" if self.happiness >= 85 else ":)"
         elif self.happiness < 40:
-            if self.happiness < 15:
-                symbol = ":'("
-            else:
-                symbol = ":("
+            symbol = ":'(" if self.happiness < 15 else ":("
         else:
             symbol = ":|"
 
@@ -413,12 +407,11 @@ class Player(Person):
                 if self.chose_student_loan:
                     self.student_loan = randint(20000, 40000)
                     print(_("You now have to start paying back your student loan"))
-            else:
-                if self.grades < randint(10, 45):
-                    display_event(
-                        _("You were expelled from university after earning bad grades.")
-                    )
-                    self.change_happiness(-randint(30, 50))
+            elif self.grades < randint(10, 45):
+                display_event(
+                    _("You were expelled from university after earning bad grades.")
+                )
+                self.change_happiness(-randint(30, 50))
         if self.student_loan > 0:
             amount = min(randint(1000, 3000) for _ in range(3))
             amount = min(amount, self.student_loan)

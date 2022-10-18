@@ -10,8 +10,7 @@ from src.lifesim_lib.lifesim_lib import *
 def start_menu():
     if not os.path.exists(SAVE_PATH):
         os.mkdir(SAVE_PATH)
-    saves = get_save_files()
-    if saves:
+    if saves := get_save_files():
         choice = choice_input(_("Load Game"), _("New Game"))
         if choice == 1:
             players = get_saves(saves)
@@ -39,7 +38,7 @@ def start_menu():
             player.randomize_traits()
         else:
             player.traits = set()
-            all_traits = [t for t in Trait]
+            all_traits = list(Trait)
             while True:
                 clear_screen()
                 print(_("Enter a number to select or deselect a trait"))
